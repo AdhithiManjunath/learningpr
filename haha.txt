@@ -13,34 +13,47 @@ public class Main {
             // Establishing the connection
             Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
 
-            // i. Display details of all the Departments using Statement Object.
+// i. Display details of all the Departments using Statement Object.
             displayAllDepartments(connection);
 
-            // ii. Display details of all the Departments which are established in the year 2000 using PreparedStatement object.
+// ii. Display details of all the Departments which are established in the year 2000 using PreparedStatement object.
 //            displayDepartmentsEstablishedInYear(connection, 2000);
 
-            // iii. Display details of all the Departments by reading Dept_ID and Department Name from the user using PreparedStatement object.
+
+
+// iii. Display details of all the Departments by reading Dept_ID and Department Name from the user using PreparedStatement object.
 //            displayDepartmentDetailsFromUserInput(connection);
 
-            // iv. Insert a new row using PreparedStatement object. Display the detail.
+
+
+// iv. Insert a new row using PreparedStatement object. Display the detail.
             insertNewDepartment(connection, 8, "E", 2025);
             
-            //v.Updating the already existing value which is present 
+            
+
+
+//v.Updating the already existing value which is present 
 //            updateDeptName(connection, 3,"C", "K");
             
 //            vi.deleting the row with given condition value 
 //            deleteSubject( connection, "E");
             
-            // vii. Update the dept with ID to a new value without passing off the old value.
+
+// vii. Update the dept with ID to a new value without passing off the old value.
 //            updateMovieGenre(connection, 2,"P");
             
-//            viii. displaying the details of the databaseMetaData
+
+// viii. displaying the details of the databaseMetaData
 //            displayDatabaseMetadata(connection);
             
-//          viii. displaying the details of the ResultSetMetaData     
+ 
+
+// viii. displaying the details of the ResultSetMetaData     
 //            displayResultSetMetadata(connection);
            
-//            ix. Displaying all usages of commit ,rollback and savepoint 
+
+
+// ix. Displaying all usages of commit ,rollback and savepoint 
             Savepoint savepoint = null;
             connection.setAutoCommit(false);
             
@@ -64,7 +77,8 @@ public class Main {
         }
     }
 
-    // i. Display details of all the Departments using Statement Object.
+
+// i. Display details of all the Departments using Statement Object.
     private static void displayAllDepartments(Connection connection) throws SQLException {
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM departments");
