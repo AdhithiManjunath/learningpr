@@ -48,3 +48,109 @@ pageEncoding="ISO-8859-1"%>
     <% } %>
 </body>
 </html>
+
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/CookieServlet")
+public class CookieServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        // Create cookies
+        Cookie cookie1 = new Cookie("Cookie1", "Value1");
+        Cookie cookie2 = new Cookie("Cookie2", "Value2");
+        Cookie cookie3 = new Cookie("Cookie3", "Value3");
+        Cookie cookie4 = new Cookie("Cookie4", "Value4");
+
+        // Set expiry for cookies
+        cookie1.setMaxAge(60); // Cookie1 expires in 1 minute
+        cookie2.setMaxAge(60); // Cookie2 expires in 1 minute
+
+        // Add cookies to the response
+        response.addCookie(cookie1);
+        response.addCookie(cookie2);
+        response.addCookie(cookie3);
+        response.addCookie(cookie4);
+
+        // Display all cookies
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            out.println("<h2>All Cookies:</h2>");
+            for (Cookie cookie : cookies) {
+                out.println("<p>Name: " + cookie.getName() + ", Value: " + cookie.getValue() + "</p>");
+            }
+        } else {
+            out.println("<p>No cookies found!</p>");
+        }
+    }
+}
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Details</title>
+</head>
+<body>
+    <h2>Enter USN to fetch student details</h2>
+    <form action="displayData.jsp" method="post">
+        <label for="usn">Enter USN:</label>
+        <input type="text" id="usn" name="usn">
+        <input type="submit" value="Fetch Details">
+    </form>
+</body>
+</html>
+
+
+<%@ page import="java.sql.*" %>
+<%@ page import="javax.sql.*" %>
+<%@ page import="javax.naming.*" %>
+
+<%
+    String usn = request.getParameter("usn");
+
+    try {
+        // Database connection parameters
+        String JDBC_URL = "jdbc:mysql://localhost:3306/your_db_name";
+        String USERNAME = "your_username";
+        String PASSWORD = "your_password";
+
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+        
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Student WHERE USN = ?");
+        preparedStatement.setString(1, usn);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        if (resultSet.next()) {
+            out.println("<h2>Student Details:</h2>");
+            out.println("<p>USN: " + resultSet.getString("USN") + "</p>");
+            out.println("<p>Name: " + resultSet.getString("Name") + "</p>");
+            out.println("<p>CGPA: " + resultSet.getString("CGPA") + "</p>");
+        } else {
+            out.println("<p>Invalid USN</p>");
+        }
+
+        resultSet.close();
+        preparedStatement.close();
+        connection.close();
+    } catch (Exception e) {
+        out.println("Exception: " + e);
+    }
+%>
+
