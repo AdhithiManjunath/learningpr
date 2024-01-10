@@ -1,0 +1,113 @@
+html file 
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Entering the details</title>
+</head>
+<body>
+	<form action = "details" method = "post">
+		Username:<input type = "text" name = "usern"><br>
+		password:<input type = "text" name = "pw">
+		<input type = "submit" value = "giveDetails">
+	</form>
+
+</body>
+</html>
+
+java file 
+
+
+
+package myPackage;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ * Servlet implementation class demo
+ */
+@WebServlet("/details")
+public class demo extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public demo() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// TODO Auto-generated method stub
+//		PrintWriter pw = response.getWriter();
+//		String username = request.getParameter("usern");
+//		String password = request.getParameter("pw");
+//		if(username!= null && password.length()>=8) {
+//		
+//		pw.print("<h1>Hello , welcome to the page : " + username + "</h1>");}
+//		else {
+//			pw.print("invalid login , check username or password");
+//		}
+		
+		
+
+        response.setContentType("text/html");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+
+        // Database connection parameters
+        String JDBC_URL = "jdbc:mysql://localhost:3306/demo";
+        String USERNAME = "root";
+        String PASSWORD = "#Iamthe1";
+        
+
+        try {
+        	Class.forName("com.mysql.cj.jdbc.Driver");
+        	String usn = request.getParameter("usern");
+            Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM Student WHERE USN = ?");
+            preparedStatement.setString(1, usn);
+            ResultSet resultSet = preparedStatement.executeQuery();
+           
+            out.println("<h1>Student Details</h1>");
+            
+
+            if (resultSet.next()) {
+                out.println("<p>USN: " + resultSet.getString("USN") + "</p>");
+                out.println("<p>Name: " + resultSet.getString("Name") + "</p>");
+            } else {
+                out.println("<p>Invalid USN</p>");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        } catch (Exception e) {
+            out.println("Exception: " + e);
+        }
+		
+	}
+
+}
+

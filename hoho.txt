@@ -1,0 +1,49 @@
+<%@ page language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subject Grade Calculator</title>
+</head>
+<body>
+    <h2>Subject Grade Calculator</h2>
+    <form action="" method="post">
+        <label>Enter Java Marks:</label>
+        <input type="text" name="javaMarks"><br><br>
+        
+        <!-- Input fields for other subjects (subject2 to subject5) -->
+
+        <input type="submit" value="Calculate Grade">
+    </form>
+
+    <%!
+        // Method to calculate grade
+        public String calculateGrade(int marks) {
+            String grade = "";
+            if (marks > 90) {
+                grade = "S";
+            } else if (marks >= 80 && marks <= 89) {
+                grade = "A";
+            } else if (marks >= 70 && marks <= 79) {
+                grade = "B";
+            } else if (marks >= 60 && marks <= 69) {
+                grade = "C";
+            } else if (marks >= 50 && marks <= 59) {
+                grade = "D";
+            } else {
+                grade = "FAIL";
+            }
+            return grade;
+        }
+    %>
+
+    <%
+        if (request.getMethod().equals("POST")) {
+            int javaMarks = Integer.parseInt(request.getParameter("javaMarks"));
+            String javaGrade = calculateGrade(javaMarks);
+    %>
+
+    <h3>Java Grade: <%= javaGrade %></h3>
+
+    <% } %>
+</body>
+</html>

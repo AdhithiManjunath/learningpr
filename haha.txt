@@ -1,0 +1,233 @@
+package myPackage;
+import java.sql.*;
+import java.util.Scanner;
+
+public class Main {
+    // JDBC URL, username, and password of the database
+    private static final String JDBC_URL = "jdbc:mysql://localhost:3306/demo";
+    private static final String USERNAME = "root";
+    private static final String PASSWORD = "#Iamthe1";
+
+    public static void main(String[] args) {
+        try {
+            // Establishing the connection
+            Connection connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+
+            // i. Display details of all the Departments using Statement Object.
+            displayAllDepartments(connection);
+
+            // ii. Display details of all the Departments which are established in the year 2000 using PreparedStatement object.
+//            displayDepartmentsEstablishedInYear(connection, 2000);
+
+            // iii. Display details of all the Departments by reading Dept_ID and Department Name from the user using PreparedStatement object.
+//            displayDepartmentDetailsFromUserInput(connection);
+
+            // iv. Insert a new row using PreparedStatement object. Display the detail.
+            insertNewDepartment(connection, 8, "E", 2025);
+            
+            //v.Updating the already existing value which is present 
+//            updateDeptName(connection, 3,"C", "K");
+            
+//            vi.deleting the row with given condition value 
+//            deleteSubject( connection, "E");
+            
+            // vii. Update the dept with ID to a new value without passing off the old value.
+//            updateMovieGenre(connection, 2,"P");
+            
+//            viii. displaying the details of the databaseMetaData
+//            displayDatabaseMetadata(connection);
+            
+//          viii. displaying the details of the ResultSetMetaData     
+//            displayResultSetMetadata(connection);
+           
+//            ix. Displaying all usages of commit ,rollback and savepoint 
+            Savepoint savepoint = null;
+            connection.setAutoCommit(false);
+            
+            savepoint = connection.setSavepoint("BeforeRollback");
+            insertNewDepartment(connection, 6, "F", 2026);
+            System.out.println("Dept F inserted.");
+
+            // Demonstrating rollback
+            connection.rollback(savepoint); // Rollback to savepoint
+            System.out.println("Dept F rolled back.");
+
+            // Committing transaction 2
+            connection.commit(); // Commit changes for transactions 1 and 2
+            System.out.println("Insertion of dept E committed.");
+
+
+            // Closing the connection
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // i. Display details of all the Departments using Statement Object.
+    private static void displayAllDepartments(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM departments");
+        System.out.println("Details of all departments:");
+        while (resultSet.next()) {
+            System.out.println("Dept_ID: " + resultSet.getInt("DID") +
+                    ", Name: " + resultSet.getString("Name") +
+                    ", Year Established: " + resultSet.getInt("Year"));
+        }
+        resultSet.close();
+        statement.close();
+    }
+
+    // ii. Display details of all the Departments which are established in the given year using PreparedStatement object.
+    private static void displayDepartmentsEstablishedInYear(Connection connection, int year) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM departments WHERE year = ?");
+        preparedStatement.setInt(1, year);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        System.out.println("Departments established in the year " + year + ":");
+        while (resultSet.next()) {
+            System.out.println("Dept_ID: " + resultSet.getInt("DID") +
+                    ", Name: " + resultSet.getString("Name") +
+                    ", Year Established: " + resultSet.getInt("Year"));
+        }
+        resultSet.close();
+        preparedStatement.close();
+    }
+
+    // iii. Display details of a Department by reading Dept_ID and Department Name from the user using PreparedStatement object.
+    private static void displayDepartmentDetailsFromUserInput(Connection connection) throws SQLException {
+        // You can use Scanner to read input from the user
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Enter Dept_ID:");
+            int deptID = scanner.nextInt();
+            System.out.println("Enter Department Name:");
+            scanner.nextLine(); // Consume the newline character
+            String deptName = scanner.nextLine();
+
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM departments WHERE DID = ? AND Name = ?");
+            preparedStatement.setInt(1, deptID);
+            preparedStatement.setString(2, deptName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("Details of the department (Dept_ID: " + deptID + ", Name: " + deptName + "):");
+            while (resultSet.next()) {
+                System.out.println("Dept_ID: " + resultSet.getInt("DID") +
+                        ", Name: " + resultSet.getString("Name") +
+                        ", Year Established: " + resultSet.getInt("Year"));
+            }
+            resultSet.close();
+            preparedStatement.close();
+        }
+    }
+
+//    // iv. Insert a new row using PreparedStatement object. Display the detail.
+    private static void insertNewDepartment(Connection connection, int deptID, String name, int year) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO departments (DID, Name, Year) VALUES (?, ?, ?)");
+        preparedStatement.setInt(1, deptID);
+        preparedStatement.setString(2, name);
+        preparedStatement.setInt(3, year);
+//        preparedStatement.setString(4, headName);
+//        preparedStatement.setInt(5, numOfEmployees);
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("New department inserted successfully.");
+        } else {
+            System.out.println("Failed to insert new department.");
+        }
+        preparedStatement.close();
+    }
+    
+    // i. Update the Name of the subject
+    private static void updateDeptName(Connection connection, int code, String oldName, String newName) throws SQLException {
+        String sql = "SELECT * FROM departments WHERE DID = ? AND Name = ?";
+        PreparedStatement preparedStatement = connection.prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        preparedStatement.setInt(1, code);
+        preparedStatement.setString(2, oldName);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        
+        if (resultSet.next()) {
+            resultSet.updateString("Name", newName);
+            resultSet.updateRow();
+            System.out.println("Updated subject name successfully.");
+        } else {
+            System.out.println("Subject not found or update failed.");
+        }
+        
+        resultSet.close();
+        preparedStatement.close();
+    }
+
+    // ii. Delete the subject
+    private static void deleteSubject(Connection connection, String name) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM departments WHERE Name = ?");
+        preparedStatement.setString(1, name);
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Subject deleted successfully.");
+        } else {
+            System.out.println("Subject not found or delete failed.");
+        }
+        preparedStatement.close();
+    }
+    
+
+    // v. Update the dept with ID to a new value without passing off the old value.
+    private static void updateMovieGenre(Connection connection, int id, String newName) throws SQLException {
+        PreparedStatement preparedStatement = connection.prepareStatement("UPDATE departments SET name = ? WHERE DID = ?");
+        preparedStatement.setString(1, newName);
+        preparedStatement.setInt(2, id);
+        int rowsAffected = preparedStatement.executeUpdate();
+        if (rowsAffected > 0) {
+            System.out.println("Dept updated successfully with ID " + id);
+
+        } else {
+            System.out.println("Failed to update genre for movie with ID " + id);
+        }
+        preparedStatement.close();
+    }
+    
+    private static void displayDatabaseMetadata(Connection connection) throws SQLException {
+        DatabaseMetaData metaData = connection.getMetaData();
+        System.out.println("Database Product Name: " + metaData.getDatabaseProductName());
+        System.out.println("Database Product Version: " + metaData.getDatabaseProductVersion());
+        System.out.println("Driver Name: " + metaData.getDriverName());
+        System.out.println("Driver Version: " + metaData.getDriverVersion());
+        System.out.println("URL: " + metaData.getURL());
+    }
+    
+    // iv. Demonstrate the details of the ResultSet by using ResultSetMetaData.
+    private static void displayResultSetMetadata(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT DID FROM departments");
+
+        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
+        int columnCount = resultSetMetaData.getColumnCount();
+        System.out.println("ResultSet Metadata:");
+        for (int i = 1; i <= columnCount; i++) {
+            System.out.println("Column Name: " + resultSetMetaData.getColumnName(i) +
+                    ", Column Type: " + resultSetMetaData.getColumnTypeName(i) +
+                    ", Column Size: " + resultSetMetaData.getColumnDisplaySize(i));
+        }
+        resultSet.close();
+        statement.close();
+    }
+
+    
+}
+
+
+
+
+
+
+// catch fo SQL  
+catch (SQLException e) {
+            if (connection != null) {
+                try {
+                    connection.rollback(); // Rollback changes in case of exception
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        }
+    }
