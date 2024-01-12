@@ -1,3 +1,74 @@
+from sklearn.datasets import load_iris
+from sklearn import tree
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+iris = load_iris()
+X, y = iris.data, iris.target
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X, y)
+tree.plot_tree(clf)
+plt.show()
+
+iris = load_iris()
+X, y = iris.data, iris.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X_train, y_train)
+y_pred = clf.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred,normalize=False)
+print(f"Accuracy: {accuracy}")
+
+
+
+
+
+
+import csv
+
+hypo = ['%', '%', '%', '%', '%', '%']
+
+with open('trainingdata.csv') as csv_file:
+    readcsv = csv.reader(csv_file, delimiter=',')
+    data = []
+
+    print("\nThe given training examples are:")
+    for row in readcsv:
+        print(row)
+        if row[-1].upper() == "YES":  # Access last element directly
+            data.append(row)
+
+print("\nThe positive examples are:")
+for x in data:
+    print(x)
+print("\n")
+
+TotalExamples = len(data)
+
+print("The steps of the Find-s algorithm are :\n", hypo)
+
+d = len(data[0]) - 1  # Get attribute count from first row
+for i in range(1, TotalExamples):  # Start from the second example
+    for k in range(d):
+        if hypo[k] != data[i][k]:
+            hypo[k] = '?'
+    print(hypo)
+
+print("\nThe maximally specific Find-s hypothesis for the given training examples is :")
+print(hypo[:d])  # Print first d elements directly
+
+
+
+
+
+
+
+
+
+
+
+
 package myPackage;
 import java.sql.*;
 import java.util.Scanner;
